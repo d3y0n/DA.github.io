@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Surprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --lavender: #E6E6FA;
+            --deep-lavender: #967BB6;
+            --cream: #FFFDD0;
+            --text-color: #5D3F6A;
+        }
+
+        body {
+            background-color: var(--cream);
+            color: var(--text-color);
+            font-family: 'Fredoka', sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* Floating Hearts Background */
+        .heart { position: fixed; color: var(--deep-lavender); opacity: 0.5; animation: float 6s linear infinite; z-index: -1; }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        h1 { font-family: 'Dancing Script', cursive; font-size: 3rem; color: var(--deep-lavender); margin-bottom: 20px; }
+
+        /* Timer Styles */
+        #timer-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 40px;
+            box-shadow: 0 10px 25px rgba(150, 123, 182, 0.2);
+            border: 5px solid var(--lavender);
+        }
+        #timer { font-size: 3.5rem; font-weight: 600; color: var(--deep-lavender); }
+
+        /* Scrapbook Slider Styles */
+        #scrapbook {
+            display: none;
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+            height: 80vh;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: fadeIn 0.8s;
+        }
+
+        .slide.active { display: block; }
+
+        .slide img, .slide video {
+            width: 100%;
+            max-height: 50vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .caption { font-family: 'Dancing Script', cursive; font-size: 1.8rem; margin-top: 15px; }
+
+        /* Cute Buttons */
+        .nav-btn {
+            background: var(--lavender);
+            border: none;
+            color: var(--text-color);
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 10px;
+            font-family: 'Fredoka', sans-serif;
+            transition: 0.3s;
+            box-shadow: 0 4px 0 var(--deep-lavender);
+        }
+
+        .nav-btn:hover { background: var(--deep-lavender); color: white; transform: scale(1.05); }
+        .nav-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="countdown-page">
+        <h1>Counting down for you...</h1>
+        <div id="timer-container">
+            <div id="timer">00:00:00:00</div>
+        </div>
+    </div>
+
+    <div id="scrapbook">
+        <div id="slides-container">
+            <div class="slide active">
+                <img src="photo1.jpg" alt="Memory 1">
+                <div class="caption">The day we met ❤️</div>
+            </div>
+
+            <div class="slide">
+                <img src="photo2.jpg" alt="Memory 2">
+                <div class="caption">Forever with you.</div>
+            </div>
+
+            <div class="slide">
+                <img src="photo2.jpg" alt="Memory 3">
+                <div class="caption">Forever with you.</div>
+            </div>
+
+            <div class="slide">
+                <img src="photo2.jpg" alt="Memory 4">
+                <div class="caption">Forever with you.</div>
+            </div>
+
+            <div class="slide">
+                <video id="vid1">
+                    <source src="video1.mp4" type="video/mp4">
+                </video>
+                <div class="caption">I love your laugh!</div>
+            </div>
+
+        </div>
+
+        <button class="nav-btn" onclick="changeSlide(-1)">❮ Prev</button>
+        <button class="nav-btn" onclick="changeSlide(1)">Next ❯</button>
+    </div>
+
+    <script>
+        const targetDate = new Date("January 14, 2026 23:56:51").getTime();
+        const musicStartTime = new Date("January 14, 2026 23:56:51").getTime();
+        let musicStarted = false;
+        let slideIndex = 0;
+        let autoPlayInterval;
+
+        const timerInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            // Start music 10 seconds early
+            if (now >= musicStartTime && !musicStarted) {
+                document.getElementById("bgMusic").play().catch(e => console.log("Waiting for user interaction to play music."));
+                musicStarted = true;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("timer").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                startScrapbook();
+            }
+        }, 1000);
+
+        function startScrapbook() {
+            document.getElementById("countdown-page").style.display = "none";
+            document.getElementById("scrapbook").style.display = "block";
+            startAutoPlay();
+        }
+
+        function changeSlide(n) {
+            clearInterval(autoPlayInterval); // Stop auto-play if user clicks
+            showSlides(slideIndex += n);
+            startAutoPlay(); // Restart auto-play timer
+        }
+
+        function showSlides(n) {
+            const slides = document.getElementsByClassName("slide");
+            if (n >= slides.length) { slideIndex = 0 }
+            if (n < 0) { slideIndex = slides.length - 1 }
+            
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove("active");
+                // Pause any video if moving away
+                let vid = slides[i].querySelector('video');
+                if(vid) vid.pause();
+            }
+            
+            slides[slideIndex].classList.add("active");
+            
+            // Auto-play video if the current slide is a video
+            let currentVid = slides[slideIndex].querySelector('video');
+            if(currentVid) currentVid.play();
+        }
+
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(() => {
+                showSlides(slideIndex += 1);
+            }, 5000); // 5 Seconds
+        }
+
+        // Floating Hearts Logic
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '💜';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 3 + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 6000);
+        }
+        setInterval(createHeart, 500);
+    </script>
+</body>
+</html>
